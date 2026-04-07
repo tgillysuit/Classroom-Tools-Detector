@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teachable Machine App</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            text-align: center;
+        }
+        #webcam-container canvas {
+            display: none;
+            border-radius: 8px;
+        }
+        #webcam-container.active canvas {
+            display: block;
+        }
+        #label-container div {
+            font-size: 1.1rem;
+            padding: 0.25rem 0;
+        }
+        button {
+            padding: 0.6rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 6px;
+            border: none;
+            color: white;
+            background: #2563eb;
+            margin: 1rem 0;
+        }
+        button.stop { background: #dc2626; }
+        button:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <h1>My Teachable Machine App</h1>
+
+    <button id="toggleButton" onclick="toggleCamera()">Start Camera</button>
+
+    <div id="webcam-container"></div>
+    <div id="label-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    <script>
+        // REPLACE THIS with your model URL from Teachable Machine:
+        const URL = "https://teachablemachine.withgoogle.com/models/YOUR_MODEL_ID/";
+
+        let model, webcam, labelContainer, maxPredictions;
+        let isRunning = false;
+
+        async function init() {
+            model = await tmImage.load(URL + "model.json", URL + "metadata.json");
+            maxPredictions = model.getTotalClasses();
+
+            webcam = new tmImage.Webcam(300, 300, true);
+            await webcam.setup();
+            await webcam.play();
+
+            const container = document.getElementById("webcam-container");
+            container.innerHTML = "";
+            container.appendChild(webcam.canvas);
+            container.classList.add("active");
+
+            labelContainer = document.getElementById("label-container");
+            labelContainer.innerHTML = "";
+            for (let i = 0; i < maxPredictions; i++) {
+                labelContainer.appendChild(document.createElement("div"));
+            }
+
+            isRunning = true;
+            window.requestAnimationFrame(loop);
+        }
+
+        async function loop() {
+            if (!isRunning) return;
+            webcam.update();
+            await predict();
+            window.requestAnimationFrame(loop);
+        }
+
+        async function predict() {
+            const prediction = await model.predict(webcam.canvas);
+            for (let i = 0; i < maxPredictions; i++) {
+                const classPrediction =
+                    prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+                labelContainer.childNodes[i].innerHTML = classPrediction;
+            }
+        }
+
+        async function toggleCamera() {
+            const button = document.getElementById("toggleButton");
+            if (!isRunning) {
+                await init();
+                button.textContent = "Stop Camera";
+                button.classList.add("stop");
+            } else {
+                isRunning = false;
+                webcam.stop();
+                document.getElementById("webcam-container").classList.remove("active");
+                button.textContent = "Start Camera";
+                button.classList.remove("stop");
+            }
+        }
+    </script>
+</body>
+</html>
