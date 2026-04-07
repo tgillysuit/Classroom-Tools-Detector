@@ -46,6 +46,7 @@
     <div id="label-container"></div>
 
     <div id="message"></div>
+    <div id="box"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
@@ -122,6 +123,15 @@ if (topClass.className === "Wave" && topClass.probability > 0.85) {
 } else {
     messageEl.textContent = "";
 }
+const box = document.getElementById("box");
+if (topClass.className === "Left" && topClass.probability > 0.7) {
+    box.style.transform = "translateX(-100px)";
+} else if (topClass.className === "Right" && topClass.probability > 0.7) {
+    box.style.transform = "translateX(100px)";
+} else {
+    box.style.transform = "translateX(0)";
+}
+
         }
 
         async function toggleCamera() {
