@@ -118,20 +118,6 @@
             }
 
             const messageEl = document.getElementById("message");
-if (topClass.className === "Wave" && topClass.probability > 0.85) {
-    messageEl.textContent = "Hello!";
-} else {
-    messageEl.textContent = "";
-}
-const box = document.getElementById("box");
-if (topClass.className === "Left" && topClass.probability > 0.7) {
-    box.style.transform = "translateX(-100px)";
-} else if (topClass.className === "Right" && topClass.probability > 0.7) {
-    box.style.transform = "translateX(100px)";
-} else {
-    box.style.transform = "translateX(0)";
-}
-
         }
 
         async function toggleCamera() {
