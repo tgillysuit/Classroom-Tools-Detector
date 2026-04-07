@@ -86,6 +86,20 @@
 
         async function predict() {
             const prediction = await model.predict(webcam.canvas);
+
+            // Find the class with the highest probability
+            let topClass = prediction[0];
+            for (let i = 1; i < prediction.length; i++) {
+                if (prediction[i].probability > topClass.probability) {
+                    topClass = prediction[i];
+                }
+            }
+
+            // topClass.className is the winning label
+            // topClass.probability is how confident the model is
+            console.log(topClass.className, topClass.probability);
+
+            // Update the display
             for (let i = 0; i < maxPredictions; i++) {
                 const classPrediction =
                     prediction[i].className + ": " + prediction[i].probability.toFixed(2);
